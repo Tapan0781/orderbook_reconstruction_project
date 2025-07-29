@@ -1,34 +1,99 @@
+#include "book.h"
+#include <sstream>
+#include <iomanip>
 
-
-#ifndef BOOK_H
-#define BOOK_H
-
-#include <map>
-#include <string>
-#include <cstdint>
-
-class Book
+void Book::addOrder(char side, double price, int64_t size)
 {
-private:
-    
-    std::map<double, int64_t, std::greater<double>> bids; // automatic sorting (descending)for bids
+    if (side == 'B')
+    {
+        bids[price] += size;
+        if (bids[price] <= 0)
+        {
+            bids.erase(price);
+        }
+    }
+    else if (side == 'A')
+    {
+        asks[price] += size;
+        if (asks[price] <= 0)
+        {
+            asks.erase(price);
+        }
+    }
+}
 
-    // automatic sorting (ascending) for asks
-    std::map<double, int64_t> asks;
+void Book::cancelOrder(char side, double price, int64_t size)
+{
+    addOrder(side, price, -size);
+}
 
-public:
-    void addOrder(char side, double price, int64_t size);
-    void cancelOrder(char side, double price, int64_t size);
-    void clear();
+void Book::clear()
+{
+    bids.clear();
+    asks.clear();
+}
 
-    // getting output as top 10 bids and asks
-    std::string getTop10();
+std::string Book::getTop10()
+{
+    std::ostringstream result;
 
-    //  methods for testing & debugging
-    int getBidLevels() const;
-    int getAskLevels() const;
-    double getBestBid() const;
-    double getBestAsk() const;
-};
+    // Get top 10 bids and asks
+    auto bid_it = bids.begin();
+    auto ask_it = asks.begin();
 
-#endif
+    for (int level = 0; level < 10; level++)
+    {
+        // Bid level
+        if (bid_it != bids.end())
+        {
+            result << bid_it->first << "," << bid_it->second << ",1,";
+            bid_it++;
+        }
+        else
+        {
+            result << ",0,0,";
+        }
+
+        // Ask level
+        if (ask_it != asks.end())
+        {
+            result << ask_it->first << "," << ask_it->second << ",1";
+            ask_it++;
+        }
+        else
+        {
+            result << ",0,0";
+        }
+
+        if (level < 9)
+        {
+            result << ",";
+        }
+    }
+
+    return result.str();
+}
+
+int Book::getBidLevels() const
+{
+    return bids.size();
+}
+
+int Book::getAskLevels() const
+{
+    return asks.size();
+}
+
+double Book::getBestBid() const
+{
+    if (bids.empty())
+        return 0.0;
+    return bids.begin()->first;
+}
+
+double Book::getBestAsk() const
+{
+    if (asks.empty())
+        return 0.0;
+    return asks.begin()->first;
+}
