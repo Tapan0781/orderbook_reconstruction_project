@@ -3,7 +3,7 @@
 
 #include <string>
 #include <cstdint>
-#include <vector>
+
 struct Order
 {
     std::string ts_recv;
@@ -13,6 +13,7 @@ struct Order
     int instrument_id;
     char action;
     char side;
+    std::string price_str;
     double price;
     int64_t size;
     int channel_id;
@@ -26,21 +27,8 @@ struct Order
 class Parser
 {
 public:
-    // breating the csv data into an Order object
-    Order parseCSVLine(const std::string &line); // '&' is used to avoid copying the string 
-
-    // method to validate the CSV line format
+    Order parseCSVLine(const std::string &line);
     bool isValidLine(const std::string &line);
-
-private:
-    // Helper method to split string by delimiter
-    std::vector<std::string> split(const std::string &str, char delimiter);
-
-    //methods to convert strings safely
-    double parseDouble(const std::string &str);
-    int64_t parseInt64(const std::string &str);
-    int parseInt(const std::string &str);
-    char parseChar(const std::string &str);
 };
 
 #endif

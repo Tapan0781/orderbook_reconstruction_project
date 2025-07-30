@@ -1,6 +1,6 @@
 #include "book.h"
 #include <sstream>
-#include <iomanip>
+#include <vector>
 
 void Book::addOrder(char side, double price, int64_t size)
 {
@@ -35,65 +35,66 @@ void Book::clear()
 
 std::string Book::getTop10()
 {
-    std::ostringstream result;
+    std::ostringstream ss;
 
-    // Get top 10 bids and asks
+    std::vector<std::pair<double, int64_t>> top_bids;
+    std::vector<std::pair<double, int64_t>> top_asks;
+
     auto bid_it = bids.begin();
-    auto ask_it = asks.begin();
-
-    for (int level = 0; level < 10; level++)
+    for (int i = 0; i < 10 && bid_it != bids.end(); ++i, ++bid_it)
     {
-        // Bid level
-        if (bid_it != bids.end())
-        {
-            result << bid_it->first << "," << bid_it->second << ",1,";
-            bid_it++;
-        }
-        else
-        {
-            result << ",0,0,";
-        }
-
-        // Ask level
-        if (ask_it != asks.end())
-        {
-            result << ask_it->first << "," << ask_it->second << ",1";
-            ask_it++;
-        }
-        else
-        {
-            result << ",0,0";
-        }
-
-        if (level < 9)
-        {
-            result << ",";
-        }
+        top_bids.push_back(*bid_it);
     }
 
-    return result.str();
+    auto ask_it = asks.begin();
+    for (int i = 0; i < 10 && ask_it != asks.end(); ++i, ++ask_it)
+    {
+        top_asks.push_back(*ask_it);
+    }
+
+    for (int i = 0; i < 10; ++i)
+    {
+        if (i < top_bids.size())
+        {
+            ss << top_bids[i].first << "," << top_bids[i].second << ",1,";
+        }
+        else
+        {
+            ss << ",0,0,";
+        }
+
+        if (i < top_asks.size())
+        {
+            ss << top_asks[i].first << "," << top_asks[i].second << ",1";
+        }
+        else
+        {
+            ss << ",0,0";
+        }
+
+        if (i < 9)
+            ss << ",";
+    }
+
+    return ss.str();
 }
 
-int Book::getBidLevels() const
+size_t Book::getBidLevelCount() const
 {
     return bids.size();
 }
 
-int Book::getAskLevels() const
+size_t Book::getAskLevelCount() const
 {
     return asks.size();
 }
 
 double Book::getBestBid() const
 {
-    if (bids.empty())
-        return 0.0;
-    return bids.begin()->first;
+    return bids.empty() ? 0.0 : bids.begin()->first;
 }
 
 double Book::getBestAsk() const
 {
-    if (asks.empty())
-        return 0.0;
-    return asks.begin()->first;
+    return asks.empty() ? 0.0 : asks.begin()->first;
 }

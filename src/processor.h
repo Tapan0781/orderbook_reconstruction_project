@@ -1,45 +1,34 @@
 #ifndef PROCESSOR_H
 #define PROCESSOR_H
 
+#include "parser.h" // This must come first to get Order struct
 #include "book.h"
-#include "parser.h"
 #include <vector>
 #include <string>
-#include <fstream>
+#include <iostream>
 
 class Processor
 {
 private:
     Book book;
     Parser parser;
-    std::vector<Order> allRecords;
+    std::vector<Order> records; // Order should be defined from parser.h
     int currentIndex;
     int outputSequence;
 
-public:
-    
-    bool processFile(const std::string &filename, std::ostream &output);
-
-    // Load all records from the file
-    void loadAllRecords(const std::string &filename);
-    bool processNextRecord();
-
-    // Output methods
+    // Private helper methods
+    void loadRecords(const std::string &filename);
+    bool processAllRecords(std::ostream &output);
     void outputHeader(std::ostream &output);
-    void outputMBPRecord(std::ostream &output, const Order &order, char finalAction, char finalSide);
-
-    // T-F-C sequence handling
-    bool isTFCSequence(int index);
-    void processTFCSequence(int index);
-
-
-    bool shouldSkipRecord(const Order &order);
-    void applyOrderToBook(const Order &order);
-
-    // Utility methods
+    void outputRecord(std::ostream &output, const Order &record);
+    void outputTRecord(std::ostream &output, const Order &timeRecord, const Order &cancelRecord);
+    bool isPartOfTFCSequence(int index);
+    bool isPartOfPreviousTFC(int index);
     void reset();
-    int getCurrentIndex() const;
-    bool hasMoreRecords() const;
+
+public:
+    Processor();
+    bool processFile(const std::string &filename, std::ostream &output);
 };
 
 #endif
