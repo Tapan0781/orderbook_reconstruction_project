@@ -1,7 +1,7 @@
 #ifndef PROCESSOR_H
 #define PROCESSOR_H
 
-#include "parser.h" // This must come first to get Order struct
+#include "parser.h" 
 #include "book.h"
 #include <vector>
 #include <string>
@@ -12,7 +12,7 @@ class Processor
 private:
     Book book;
     Parser parser;
-    std::vector<Order> records; // Order should be defined from parser.h
+    std::vector<Order> records; 
     int currentIndex;
     int outputSequence;
 

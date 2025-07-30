@@ -6,7 +6,7 @@
 
 Processor::Processor() : currentIndex(0), outputSequence(0)
 {
-    // Constructor implementation
+    
 }
 
 bool Processor::processFile(const std::string &filename, std::ostream &output)
@@ -32,7 +32,7 @@ void Processor::loadRecords(const std::string &filename)
     }
 
     std::string line;
-    std::getline(file, line); // Skip header
+    std::getline(file, line); 
 
     records.clear();
     while (std::getline(file, line))
@@ -55,7 +55,7 @@ bool Processor::processAllRecords(std::ostream &output)
     {
         Order &record = records[currentIndex];
 
-        // Rule 1: Handle clear actions
+        
         if (record.action == 'R')
         {
             book.clear();
@@ -64,25 +64,25 @@ bool Processor::processAllRecords(std::ostream &output)
             continue;
         }
 
-        // Check for T-F-C sequence
+        
         if (record.action == 'T' && isPartOfTFCSequence(currentIndex))
         {
             Order &tradeRecord = records[currentIndex];
             Order &cancelRecord = records[currentIndex + 2];
 
-            // Apply the cancel to orderbook (Rule 2)
+            
             if (cancelRecord.side != 'N')
             {
                 book.cancelOrder(cancelRecord.side, cancelRecord.price, cancelRecord.size);
             }
 
-            // Output single T record
+            
             outputTRecord(output, tradeRecord, cancelRecord);
-            currentIndex += 3; // Skip T, F, C
+            currentIndex += 3; 
             continue;
         }
 
-        // Handle standalone T actions (including side='N')
+        
         if (record.action == 'T')
         {
             outputRecord(output, record);
@@ -90,7 +90,7 @@ bool Processor::processAllRecords(std::ostream &output)
             continue;
         }
 
-        // Handle regular A and C actions
+        
         if (record.action == 'A')
         {
             book.addOrder(record.side, record.price, record.size);
